@@ -54,7 +54,7 @@ ui <- dashboardPage(
             placeholder = "separate by commas e.g. '322,125,157,123'",
             value = "322,125,157,123"
           ),
-          checkboxInput("ws_dich", "Is this for a white star?", FALSE)
+          checkboxInput("ws_dich", "Is this for a white star?", F)
         ),
         infoBoxOutput('pinfoBox1', width = 6),
         # infoBoxOutput('pinfoBox2', width = 6),
@@ -101,10 +101,6 @@ server <- function(input, output) {
     vals$n_roids <- length(vals$roids)
   })
   
-  output$text_calc <- renderText({
-    paste("The result is =", vals$roids)
-  })
-  
   calcs <- function() {
     
     n_roids <<- length(vals$roids)
@@ -144,7 +140,8 @@ server <- function(input, output) {
     if (input$ws_dich == F) {
       dat
     } else{
-      dat[nrow(dat) + 1,] <- dat[nrow(dat),] * 600
+      dat$time_up[nrow(dat)] <- dat$time_up[nrow(dat)]*600
+      dat
     }
   }
   
