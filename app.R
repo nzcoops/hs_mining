@@ -22,6 +22,8 @@ round_df <- function(df, digits) {
 ui <- dashboardPage(
   dashboardHeader(title = "Hades Star - Mining Calculator"),
   dashboardSidebar(sidebarMenu(
+    tags$img(src ="https://pbs.twimg.com/profile_images/1035337796188172288/cbHBZTxQ_400x400.jpg", width = 225),
+    
     menuItem(
       "Basic Calc",
       tabName = "userinputs",
