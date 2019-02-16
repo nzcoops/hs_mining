@@ -50,6 +50,9 @@ ui <- dashboardPage(
           selectInput("select_boost", "Boost level:", c(1:10), selected = 5),
           selectInput("select_remote", "Remote mining level:", c(1:10), selected = 5),
           selectInput("select_crunch", "Crunch level:", c(0:10), selected = 0),
+          selectInput("select_unity", "Unity level:", c(0:10), selected = 0),
+          selectInput("select_nminers", "Number of identical miners:", c(1:3), selected = 1),
+          selectInput("select_warp", "Warp level:", c(0:10), selected = 0),
           textInput(
             "asteroids",
             "Asteroids (hydro):",
@@ -88,17 +91,56 @@ server <- function(input, output) {
   mining_remote <<- c(0.36, 0.4, 0.45, 0.51, 0.57, 0.64, 0.72, 0.81, 0.9, 1)
   mining_unity <<- c(1.25, 1.29, 1.34, 1.39, 1.45, 1.52, 1.61, 1.71, 1.83, 2)
   mining_crunch <<- c(300, 350, 400, 450, 500, 600, 700, 800, 900, 1000)
+  mining_warp <<- c(1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1)
   
   vals <- reactiveValues()
   observe({
     vals$s <- mining_speed[as.numeric(input$select_speed)]
     vals$b <- mining_boost[as.numeric(input$select_boost)]
     vals$r <- mining_remote[as.numeric(input$select_remote)]
-    vals$c <- ifelse(input$select_crunch == 0,
-                     0,
-                     mining_crunch[as.numeric(input$select_crunch)])
-    #vals$u <- c(1.25,1.29,1.34,1.39,1.45,1.52,1.61,1.71,1.83,2)
-    vals$mining_e_speed = vals$s * vals$b * vals$r
+    # vals$c <- ifelse(input$select_crunch == 0,
+    #                  0,
+    #                  mining_crunch[as.numeric(input$select_crunch)])
+    vals$u <- ifelse(input$select_unity == 0,
+                     1,
+                     mining_unity[as.numeric(input$select_unity)])
+    vals$w <- ifelse(input$select_warp == 0,
+                     1,
+                     mining_warp[as.numeric(input$select_warp)])
+    
+    vals$n <- ifelse(input$select_nminers == 1,
+                     1,
+                     as.numeric(input$select_nminers))
+    
+    vals$mining_e_speed = vals$s * vals$b * vals$r * vals$u * vals$w * vals$n
+    
+    vals$c <- if(input$select_crunch == 0 & input$select_nminers == 1){
+      0
+    } else if(input$select_crunch > 0 & input$select_nminers == 1){
+      mining_crunch[as.numeric(input$select_crunch)]
+    } else if(input$select_crunch > 0 & input$select_nminers > 1){
+      mining_crunch[as.numeric(input$select_crunch)] * as.numeric(input$select_nminers)
+    }
+    
+    # if(input$select_nminers > 1){
+    #   vals$c = vals$c * vals$n
+    # } else{
+    #   vals$c = vals$c
+    # }
+    # 
+    
+    # if(input$select_unity > 0){
+    #   vals$mining_e_speed <- vals$mining_e_speed * mining_unity[as.numeric(input$select_unity)]
+    # } 
+    # 
+    # if(input$select_nminers > 1){
+    #   vals$mining_e_speed = vals$mining_e_speed * input$select_nminers
+    # }
+    # 
+    # if(input$select_warp > 0){
+    #   vals$mining_e_speed = vals$mining_e_speed * mining_warp[as.numeric(input$select_unity)]
+    # }
+
     vals$roids <- as.numeric(unlist(strsplit(input$asteroids, split = ",")))
     vals$n_roids <- length(vals$roids)
   })
